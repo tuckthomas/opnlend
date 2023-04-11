@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Loan Detail</h1>
+  <p><strong>Loan Type:</strong> {{ loan.loan_type }}</p>
+  <p><strong>Loan Amount:</strong> {{ loan.loan_amount }}</p>
+  <p><strong>Borrower:</strong> {{ loan.borrower }}</p>
+  <p><strong>Guarantor:</strong> {{ loan.guarantor }}</p>
+  <p><strong>Loan Purpose:</strong> {{ loan.loan_purpose }}</p>
+  <p><strong>Loan Term:</strong> {{ loan.loan_term }}</p>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Loan List</h1>
+  <ul>
+  {% for loan in loan_list %}
+    <li>{{ loan.loan_type }} - {{ loan.loan_amount }}</li>
+  {% empty %}
+    <li>No loans yet.</li>
+  {% endfor %}
+  </ul>
+{% endblock %}
