@@ -1,5 +1,5 @@
-# opnlend
-![opnlend logo](media/images/opnlend-logo.jpg)
+# opnlend 
+![opnlend-logo-banner](media/images/opnlend-logo-banner.jpg)
 An open source loan origination system for commercial, consumer, and government guaranteed (SBA and USDA) lending.
 
 I'm in the very beginning stages here and while I have have been working in commerical credit/underwriting for the last decade, I'm still a beginner at coding outside of VBA. I'm using this as a learning experience to continue to learn coding while appylying my professional background.
