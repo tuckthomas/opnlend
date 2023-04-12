@@ -138,32 +138,36 @@ class Loan(models.Model):
             ('SECURED', 'Secured'),
         ]
     )
-
+    #Initial Loan Structure
     loan_amount = models.DecimalField(max_digits=15, decimal_places=2)
     loan_purpose = models.CharField(max_length=255)
     loan_term = models.PositiveIntegerField(verbose_name="Loan Term (months)")
     loan_amortization = models.PositiveIntegerField(verbose_name="Loan Amortization (months)")
-
+    #SBA's Period 1 Interest Rate Pricing Fields
     period_1_interest_rate_type = models.CharField(max_length=10, choices=PERIOD_1_INTEREST_RATE_TYPE_CHOICES)
     period_1_interest_rate_applied = models.CharField(max_length=15, choices=PERIOD_1_INTEREST_RATE_APPLIED_CHOICES)
     period_1_base_rate = models.CharField(max_length=15, choices=PERIOD_1_BASE_RATE_CHOICES)
     period_1_base_rate_other = models.CharField(max_length=255, blank=True, null=True)
     period_1_interest_rate_spread = models.DecimalField(max_digits=7, decimal_places=4)
     period_1_full_rate = models.DecimalField(max_digits=7, decimal_places=4)
-
+    #SBA's Period 2 Interest Rate Pricing Fields
     period_2_interest_rate_type = models.CharField(max_length=10, choices=PERIOD_2_INTEREST_RATE_TYPE_CHOICES, blank=True, null=True)
     period_2_interest_rate_applied = models.CharField(max_length=15, choices=PERIOD_2_INTEREST_RATE_APPLIED_CHOICES, blank=True, null=True)
     period_2_base_rate = models.CharField(max_length=15, choices=PERIOD_2_BASE_RATE_CHOICES, blank=True, null=True)
     period_2_base_rate_other = models.CharField(max_length=255, blank=True, null=True)
     period_2_interest_rate_spread = models.DecimalField(max_digits=7, decimal_places=4, blank=True, null=True)
     period_2_full_rate = models.DecimalField(max_digits=7, decimal_places=4, blank=True, null=True)
-
+    #Interest Rate Frequency and First Adjustment Date (Adjustmetn Date Required for SBA Form 1920)
     interest_rate_repricing_frequency = models.CharField(max_length=15, choices=REPRICING_FREQUENCY_CHOICES)
     interest_rate_repricing_frequency_custom = models.CharField(max_length=255, blank=True, null=True)
     first_interest_rate_adjustment_date = models.DateField()
-
+    #Repayment Fields
     repayment_frequency = models.CharField(max_length=15, choices=REPAYMENT_FREQUENCY_CHOICES)
     repayment_frequency_custom = models.CharField(max_length=255, blank=True, null=True)
     repayment_type = models.CharField(max_length=22, choices=REPAYMENT_TYPE_CHOICES)
     repayment_type_modified = models.CharField(max_length=255, blank=True, null=True)
-
+    #Account Roles Fields
+    loan_officer = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_loan_officer', null=True)
+    credit_analyst = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_credit_analyst', null=True)
+    underwriter = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_underwriter', null=True)
+    portfolio_manager = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_portfolio_manager', null=True)
