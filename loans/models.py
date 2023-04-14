@@ -157,6 +157,9 @@ class Loan(models.Model):
     period_2_base_rate_other = models.CharField(max_length=255, blank=True, null=True)
     period_2_interest_rate_spread = models.DecimalField(max_digits=7, decimal_places=4, blank=True, null=True)
     period_2_full_rate = models.DecimalField(max_digits=7, decimal_places=4, blank=True, null=True)
+    #General Interest Rate Fields
+    floor_rate = models.DecimalField(max_digits=7, decimal_places=4)
+    ceiling_rate = models.DecimalField(max_digits=7, decimal_places=4)
     #Interest Rate Frequency and First Adjustment Date (Adjustmetn Date Required for SBA Form 1920)
     interest_rate_repricing_frequency = models.CharField(max_length=15, choices=REPRICING_FREQUENCY_CHOICES)
     interest_rate_repricing_frequency_custom = models.CharField(max_length=255, blank=True, null=True)
@@ -173,7 +176,6 @@ class Loan(models.Model):
     portfolio_manager = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_portfolio_manager', null=True)
     #Use of Proceeds; currently a work-in-progress and, as-is, mimicking the SBA Form 1920
     use_of_proceeds = models.JSONField(blank=True, null=True)
-
 
 #Model to allow for customization of loan fields.
 class CustomField(models.Model):
