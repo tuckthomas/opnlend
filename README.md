@@ -1,5 +1,5 @@
 # opnlend
-**_An open source loan origination system for commercial and government guaranteed (SBA and USDA) lending._**
+**_A framework for an open source loan origination system for commercial and government guaranteed (SBA and USDA) lending._**
 
 ![opnlend-logo-banner](media/images/opnlend-logo-banner.jpg)
 
