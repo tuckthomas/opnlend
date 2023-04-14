@@ -171,3 +171,39 @@ class Loan(models.Model):
     credit_analyst = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_credit_analyst', null=True)
     underwriter = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_underwriter', null=True)
     portfolio_manager = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_portfolio_manager', null=True)
+
+class UseOfProceedsCategory(models.Model):
+    CATEGORY_CHOICES = [
+        (1, 'Land Acquisition'),
+        (2, 'Construction, Expansion, or Renovation'),
+        (3, 'Leasehold Improvements'),
+        (4, 'Machinery and Equipment'),
+        (5, 'Furniture and Fixtures'),
+        (6, 'Inventory Purchase'),
+        (7, 'Working Capital'),
+        (8, 'Export Working Capital'),
+        (9, 'Support Standby Letter of Credit'),
+        (10, 'Refinance Existing EWCP Loan or Export Line of Credit'),
+        (11, 'Business Acquisition (Change of Ownership)'),
+        (12, 'Payoff SBA Loan'),
+        (13, 'Pay Notes Payable'),
+        (14, 'Pay Accounts Payable'),
+        (15, 'SBA Guaranty Fee'),
+        (16, 'Other'),
+    ]
+
+    category = models.PositiveSmallIntegerField(choices=CATEGORY_CHOICES)
+    description = models.TextField(blank=True, null=True)
+
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name='use_of_proceeds_categories')
+
+class UseOfProceedsAllocation(models.Model):
+    COLUMN_CHOICES = [
+        ('SBA_LOAN', 'SBA 7(a) Loan'),
+        ('OTHER_FINANCING', 'Other Financing'),
+        ('EQUITY_INJECTION', 'Applicant Equity Injection'),
+    ]
+
+    use_of_proceeds_category = models.ForeignKey(UseOfProceedsCategory, on_delete=models.CASCADE, related_name='allo>
+    column = models.CharField(max_length=16, choices=COLUMN_CHOICES)
+    amount = models.DecimalField(max_digits=15, decimal_places=2)
