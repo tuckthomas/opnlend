@@ -171,6 +171,36 @@ class Loan(models.Model):
     credit_analyst = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_credit_analyst', null=True)
     underwriter = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_underwriter', null=True)
     portfolio_manager = models.ForeignKey('users.User', on_delete=models.SET_NULL, related_name='loans_portfolio_manager', null=True)
+    #Use of Proceeds; currently a work-in-progress and, as-is, mimicking the SBA Form 1920
+    use_of_proceeds = models.JSONField(blank=True, null=True)
+
+
+#Model to allow for customization of loan fields.
+class CustomField(models.Model):
+    FIELD_TYPE_CHOICES = [
+        ('TEXT', 'Text'),
+        ('NUMBER', 'Number'),
+        ('DECIMAL', 'Decimal'),
+        ('DATE', 'Date'),
+        ('BOOLEAN', 'Boolean'),
+    ]
+
+    name = models.CharField(max_length=255)
+    field_type = models.CharField(max_length=10, choices=FIELD_TYPE_CHOICES)
+    required = models.BooleanField(default=False)
+
+#Model to store the values of the custom fields for each loan:
+class LoanCustomFieldValue(models.Model):
+    loan = models.ForeignKey(Loan, on_delete=models.CASCADE, related_name='custom_field_values')
+    custom_field = models.ForeignKey(CustomField, on_delete=models.CASCADE, related_name='loan_custom_field_values')
+    value_text = models.TextField(blank=True, null=True)
+    value_number = models.IntegerField(blank=True, null=True)
+    value_decimal = models.DecimalField(max_digits=15, decimal_places=2, blank=True, null=True)
+    value_date = models.DateField(blank=True, null=True)
+    value_boolean = models.BooleanField(blank=True, null=True)
+
+    class Meta:
+        unique_together = ('loan', 'custom_field')
 
 class UseOfProceedsCategory(models.Model):
     CATEGORY_CHOICES = [
