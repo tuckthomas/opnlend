@@ -1,1 +1,1 @@
-Placeholder for an AI Chatbot plugin that is to act as an assistive tool and commercial credit training model. Additionally, the AI Chatbot is to assist prospective borrower's when submitting their loan applications.
+Placeholder for an AI Chatbot plugin that is to act as an assistive tool and commercial credit training model. Additionally, the AI Chatbot is to assist prospective borrowers when submitting their loan applications.
