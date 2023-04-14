@@ -1,0 +1,1 @@
+The intent is to utilize the deposits and loans apps to create a profitability manager; calculating a given relationship's Return on Assets and/or Return on Equity, as well as each individual accounts profitability.
