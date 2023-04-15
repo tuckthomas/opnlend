@@ -1,5 +1,5 @@
 # opnlend
-**_A framework for an open source, modular commercial and government guaranteed (SBA and USDA) loan origination system. The intent of this project is an "ala carte" approach. The each app (Loans, Deposits, Collateral, Spreading, Profiles (for credit memos), etc. is to be individually installed._**
+**_A framework for an open source, modular commercial and government guaranteed (SBA and USDA) loan origination system. The intent of this project is an "ala carte" approach. Each app is to be individually installed to the individual or institution's needs (Loans, Deposits, Collateral, Spreading, Profiles, etc.)._**
 
 ![opnlend-logo-banner](media/images/opnlend-logo-banner.jpg)
 
