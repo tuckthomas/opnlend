@@ -1,2 +1,1 @@
-This this project's priority is lending, the Deposits application will be one of the last applications developed. However, it is an integral piece to the Profitabiltiy Manager.
- 
+I'm adding a placeholder readme file for right now. The Collateral application is to be developed in conjunction with the Loans application.
