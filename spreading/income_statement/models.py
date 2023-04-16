@@ -4,6 +4,18 @@ from relationships.models import Business
 from django.core.validators import MinValueValidator
 from datetime import timedelta
 
+# Custom model for fields that the Balance Sheet model requires to
+# be reflected as negative values. This approach will keep the
+# conversion logic within the model iteself. Those field within
+# the BalanceSheet model will then reference the NegativeDecimalField.
+# Please note that the conversion to a negative value will not
+# automatically be reflected in the form until saved, unless
+# client-side JavaScript code is included to handle this
+# negative conversion in real-time.
+class NegativeDecimalField(models.DecimalField):
+    def get_prep_value(self, value):
+        return super().get_prep_value(-abs(value))
+
 class IncomeStatement(models.Model):
     # Financial statement quality choices that are to be chosen from a drop-down menu.
     FINANCIAL_STATEMENT_QUALITY_CHOICES = [
@@ -27,11 +39,11 @@ class IncomeStatement(models.Model):
 
     # Revenue
     revenue = models.DecimalField(max_digits=15, decimal_places=2)
-    returns_and_allowances = models.DecimalField(max_digits=15, decimal_places=2)
+    returns_and_allowances = NegativeDecimalField(max_digits=15, decimal_places=2)
 
     # Cost of Goods Sold
-    cost_of_goods_sold_general = models.DecimalField(max_digits=15, decimal_places=2)
-    cost_of_goods_sold_depreciation = models.DecimalField(max_digits=15, decimal_places=2)
+    cost_of_goods_sold_general = NegativeDecimalField(max_digits=15, decimal_places=2)
+    cost_of_goods_sold_depreciation = NegativeDecimalField(max_digits=15, decimal_places=2)
 
     # Operating Expenses
     salaries_and_wages = models.DecimalField(max_digits=15, decimal_places=2)
@@ -62,29 +74,19 @@ class IncomeStatement(models.Model):
 
     # Other Income and Expenses
     gain_on_sale_of_asset = models.DecimalField(max_digits=15, decimal_places=2)
-    loss_on_sale_of_asset = models.DecimalField(max_digits=15, decimal_places=2)
+    loss_on_sale_of_asset = NegativeDecimalField(max_digits=15, decimal_places=2)
     interest_income = models.DecimalField(max_digits=15, decimal_places=2)
-    interest_expense = models.DecimalField(max_digits=15, decimal_places=2)
+    interest_expense = NegativeDecimalField(max_digits=15, decimal_places=2)
 
     # Other Income or Expenses
     other_income_or_expense_general = models.DecimalField(max_digits=15, decimal_places=2)
 
     # Taxes
-    c_corporation_taxes = models.DecimalField(max_digits=15, decimal_places=2)
+    c_corporation_taxes = NegativeDecimalField(max_digits=15, decimal_places=2)
     c_corporation_tax_refund = models.DecimalField(max_digits=15, decimal_places=2)
 
-    # Other Adjustments to Cash Flow and Shareholders' Equity
-    other_cash_flow_adjustment_general = models.DecimalField(max_digits=15, decimal_places=2)
-
-    # Debt Service Coverage Analysis (Includes Other Cash Flow Adjustments)
-    debt_service_obligations = models.DecimalField(max_digits=15, decimal_places=2)
-    adjusted_monthly_debt_service_obligations = models.DecimalField(max_digits=15, decimal_places=2)
-    adjusted_obligations_for_months_in_current_period = models.DecimalField(max_digits=15, decimal_places=2)
-    historical_interest_expenses = models.DecimalField(max_digits=15, decimal_places=2)
-    adjusted_debt_service_obligations = models.DecimalField(max_digits=15, decimal_places=2)
-    distributions_to_shareholders = models.DecimalField(max_digits=15, decimal_places=2)
-
-
+    #Distribution of Earnings
+    distributions_to_shareholders = NegativeDecimalField(max_digits=15, decimal_places=2)
 
     # Auto-calculated fields (i.e., amount of months in current period, total and subtotal fields)
     @property
@@ -145,7 +147,7 @@ class IncomeStatement(models.Model):
 
     @property
     def other_income_and_expenses(self):
-        return self.gain_on_sale_of_asset - self.loss_on_sale_of_asset + self.interest_income - self.interest_expense
+        return self.gain_on_sale_of_asset + self.loss_on_sale_of_asset + self.interest_income + self.interest_expense
 
     @property
     def other_income_or_expenses_subtotal(self):
@@ -164,30 +166,25 @@ class IncomeStatement(models.Model):
         return self.net_profit_loss - self.c_corporation_taxes + self.c_corporation_tax_refund
 
     @property
-    def other_cash_flow_adjustments_subtotal(self):
-        return self.other_cash_flow_adjustment_general
-
-    @property
-    def total_adjusted_ebit(self):
+    def ebit(self):
         return (
             self.net_profit_loss_after_taxes +
-            self.other_cash_flow_adjustments_subtotal +
-            abs(self.c_corporation_taxes) +
+            self.c_corporation_taxes +
             self.c_corporation_tax_refund +
-            abs(self.interest_expense)
+            self.interest_expense
         )
 
     @property
-    def total_adjusted_ebitda(self):
+    def ebitda(self):
         return self.total_adjusted_ebit + self.depreciation_and_depletion + self.amortization
 
     @property
-    def total_adjusted_ebitdar(self):
+    def ebitdar(self):
         return self.total_adjusted_ebitda + self.real_estate_rent_effects_ebitdar
 
     @property
-    def total_adjusted_ebitdar_includes_distributions(self):
-        return self.total_adjusted_ebitdar - self.distributions_to_shareholders
+    def retained_earnings(self):
+        return self.net_profit_loss + self.distributions_to_shareholders
 
     def __str__(self):
         return f"Income Statement of user {self.user} for business {self.business.entity_name}"
