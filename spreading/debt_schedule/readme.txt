@@ -1,1 +1,0 @@
-The model, views, urls, and other applicable files to this model are currently in development.
