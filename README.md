@@ -3,7 +3,7 @@
 
 **_A framework for an open source, modular commercial and government guaranteed (SBA and USDA) loan origination system._**
 
-**_The intent of this project is an "ala carte" approach. Each app is to be individually installed to the individual or institution's needs (Loans, Deposits, Collateral, Spreading, Profiles, etc.). Later down the road, possibly adding "Third Party Plugins" for community made content (visualization packages, analysis tools, etc.).  Furthermore, it is to be locally hosted; mitigating risk of downtime when compared to a 3rd party cloud server. I am currently developing this within a Proxmox container (LXC) hosted on my home server, integrated with my PostgreSQL database hosted in a separate LXC._**
+**_The intent of this project is an "ala carte" approach. Each app is to be individually installed to the individual or institution's needs (Loans, Deposits, Collateral, Spreading, Profiles, etc.). Later down the road, possibly adding support for the installation of "Third Party Plugins" for community made content (visualization packages, analysis tools, etc.).  Furthermore, it is to be locally hosted; mitigating risk of downtime when compared to a 3rd party cloud server. I am currently developing this within a Proxmox container (LXC) hosted on my home server, integrated with my PostgreSQL database hosted in a separate LXC._**
 
 ![opnlend-logo-banner](media/images/opnlend-logo-banner.jpg)
 
