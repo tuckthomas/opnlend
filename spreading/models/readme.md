@@ -1,1 +1,0 @@
-As opposed to a singular models.py app containing numerous classes, I've created a /models directory that will contain individual models for each statement type. This should make it more manageable and organized.
