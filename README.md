@@ -1,11 +1,11 @@
-# opnlend
+![opnlend-logo-banner](media/images/opnlend-logo-white-background-banner.jpg)
 **_*Note: This is far from being a finished product. The initial app pipeline is the core funcitonality: relationships (affiliates), loans, and spreading.*_**
 
 **_A framework for an open source, modular commercial and government guaranteed (SBA and USDA) loan origination system._**
 
 **_The intent of this project is an "ala carte" approach. The "core apps" are intended to be Loans, Relationships, and Spreading. Each additional app is to be individually installed to the individual or institution's needs (Deposits, Collateral, Profiles, etc.). Later down the road, possibly adding support for the installation of "Third Party Plugins" for community made content (data visualization packages, support for credit reporting agency data pulls, analysis tools, etc.).  Furthermore, it is to be locally hosted; mitigating risk of downtime when compared to a 3rd party cloud server, as the web application would remain accessable on a local area connection. I am currently developing this within a Proxmox container (LXC) hosted on my home server, integrated with my PostgreSQL database hosted in a separate LXC._**
 
-![opnlend-logo-banner](media/images/opnlend-logo-banner.jpg)
+
 
 **Introduction**
 
@@ -16,3 +16,5 @@ I'm more so using this application as a learning project to continue learning co
 I've uploaded some initial models.py files to the /loans and /relationships folder, though much remains to be added to both. Many of the initial loan's model.py were created with the SBA's Form 1920 in mind, allowing for automated population of the form later down the road. I've also uploaded a Financial Spreading Model that I created in Excel. While I could embed it as the spreadsheet solution to this application, I think there are better options. I'm more so uploading it as an example.
 
 I'll update this readme soon to reflect initial project goals and features that are to be added.
+
+![opnlend-logo-banner](media/images/opnlend-base-template-design.png)
