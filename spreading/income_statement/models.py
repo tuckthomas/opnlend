@@ -34,7 +34,7 @@ class IncomeStatement(models.Model):
     ### Establishes relevant information for a given financial period that is to be spread.
     business_name = models.ForeignKey(Business, on_delete=models.CASCADE) # Populates the business name from the Business class defined within the Relationships' models.py file
 
-    
+
     legal_entity_fiscal_year_end = models.DateField(null=False, blank=False,)
 
     ### Other relevant information for a given financial period that is to be spread.
@@ -50,7 +50,7 @@ class IncomeStatement(models.Model):
     ### Revenue (subtotal)
     revenue_subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-   
+
     #
     # Revenue Subtotal Fields (Cascade)
     revenue_generic = models.DecimalField(max_digits=15, decimal_places=2)
@@ -63,7 +63,7 @@ class IncomeStatement(models.Model):
     ### Net Revenue Field
     net_revenue = models.DecimalField(max_digits=10, decimal_places=2) # = Revenue Subtotal + Returns and Allowances (-)
 
-    
+
     #
     ### Cost of Goods Sold (subtotal)
     cogs_subtotal = models.DecimalField(max_digits=10, decimal_places=2)
@@ -130,7 +130,7 @@ class IncomeStatement(models.Model):
 
     ## Other Income and Expenses (subtotal) # Other Income and Expenses Subtotal Field
     total_other_income_and_expenses = models.DecimalField(max_digits=15, decimal_places=2)
-    
+
     # Other Income and Expenses (Cascade)
     gain_on_sale_of_asset = models.DecimalField(max_digits=15, decimal_places=2)
     loss_on_sale_of_asset = NegativeDecimalField(max_digits=15, decimal_places=2)
@@ -160,7 +160,7 @@ class IncomeStatement(models.Model):
     ### Net Profit (Loss)
     net_profit_loss_after_taxes = models.DecimalField(max_digits=15, decimal_places=2)
     distributions_to_shareholders = NegativeDecimalField(max_digits=15, decimal_places=2) # Entered as a negative value
-    
+
 
     @property
     def months_in_period(self):
@@ -182,7 +182,7 @@ class IncomeStatement(models.Model):
         result = self.revenue_generic + self.revenue_udf1 + self.revenue_udf2 + self.revenue_udf3 + self.revenue_udf4
         return result
 
-    @property       
+    @property
     def net_revenue(self):
         result = self.revenue_subtotal - self.returns_and_allowances
         return result
@@ -210,8 +210,11 @@ class IncomeStatement(models.Model):
     @property
     def other_operating_expenses_subtotal(self):
         results = (
-            self.other_operating_expenses_udf1 + self.other_operating_expenses_udf2 + self.other_operating_expenses_udf3 + self.other_operating_expenses_udf4 + self.other_operating_expenses_udf5 + self.other_operating_expenses_udf6 + self.other_operating_expenses_udf7
-    
+            self.other_operating_expenses_udf1 + self.other_operating_expenses_udf2 + self.other_operating_expenses_udf3 +
+            self.other_operating_expenses_udf4 + self.other_operating_expenses_udf5 + self.other_operating_expenses_udf6 +
+            self.other_operating_expenses_udf7
+        )
+
     @property
     def total_operating_expenses(self):
         result = (
