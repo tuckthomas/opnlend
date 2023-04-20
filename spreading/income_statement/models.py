@@ -208,6 +208,11 @@ class IncomeStatement(models.Model):
         return result
 
     @property
+    def other_operating_expenses_subtotal(self):
+        results = (
+            self.other_operating_expenses_udf1 + self.other_operating_expenses_udf2 + self.other_operating_expenses_udf3 + self.other_operating_expenses_udf4 + self.other_operating_expenses_udf5 + self.other_operating_expenses_udf6 + self.other_operating_expenses_udf7
+    
+    @property
     def total_operating_expenses(self):
         result = (
             self.salaries_and_wages + self.officers_compensation + self.repairs_and_maintenance + self.bad_debt +
