@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from django.db.models import F
 from spreading.models import GlobalStatement
 from datetime import timedelta
+from income_statement.models import IncomeStatement
+
 
 # Custom model for fields that the Balance Sheet model requires to
 # be reflected as negative values. This approach will keep the
