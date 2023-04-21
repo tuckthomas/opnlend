@@ -1,4 +1,11 @@
 from django.db import models
+from users.models import User
+from relationships.models import Business
+from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.db.models import F
+from spreading.models import GlobalStatement
+from datetime import timedelta
 
 # Custom model for fields that the Balance Sheet model requires to
 # be reflected as negative values. This approach will keep the
@@ -17,70 +24,214 @@ class NegativeDecimalField(models.DecimalField):
 
 # Balance Sheet model.
 class BalanceSheet(models.Model):
+    # Global Statement ID for Financial Statement Set
+    global_statement = models.ForeignKey(GlobalStatement, on_delete=models.CASCADE, related_name='income_statements')
+    # Business Name
+    business_name = models.ForeignKey(Business, on_delete=models.CASCADE)
+    
     uuid = models.UUIDField(primary_key=True, unique=True)
     entity_name = models.CharField(max_length=100)
 
     # Asset fields
+    
+    # Current Assets
+    # Cash (subtotal)
+    cash_subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Cash Accounts (cascade)
     cash_at_financial_institution = models.DecimalField(max_digits=15, decimal_places=2)
     cash_at_other_financial_institution = models.DecimalField(max_digits=15, decimal_places=2)
     unclassified_cash_account = models.DecimalField(max_digits=15, decimal_places=2)
-
+    
+    # Accounts Receivable (net)
+    accounts_receivable_net = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     accounts_receivable = models.DecimalField(max_digits=15, decimal_places=2)
     bad_debt_allowance = NegativeDecimalField(max_digits=15, decimal_places=2)
 
+    # Inventory (subtotal)
+    inventory_subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     raw_material = models.DecimalField(max_digits=15, decimal_places=2)
     work_in_progress = models.DecimalField(max_digits=15, decimal_places=2)
     finished_goods = models.DecimalField(max_digits=15, decimal_places=2)
     unclassified_inventory = models.DecimalField(max_digits=15, decimal_places=2)
-
+    
+    # Other Current Assets
     prepaid_expenses_generic = models.DecimalField(max_digits=15, decimal_places=2)
-
     other_current_assets_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_current_assets_udf1 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_current_assets_udf2 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_current_assets_udf3 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Total Current Assets
+    total_current_assets = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
+
+    # Gross Plant and Equipment (excludes land)
+    gross_fixed_assets_subtotal) = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    fixed_assets_generic = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     machinery_and_equipment = models.DecimalField(max_digits=15, decimal_places=2)
     computers_and_office_equipment = models.DecimalField(max_digits=15, decimal_places=2)
     furniture_and_fixtures = models.DecimalField(max_digits=15, decimal_places=2)
     leasehold_improvements = models.DecimalField(max_digits=15, decimal_places=2)
     construction_in_progress = models.DecimalField(max_digits=15, decimal_places=2)
     building = models.DecimalField(max_digits=15, decimal_places=2)
-    other_fixed_asset = models.DecimalField(max_digits=15, decimal_places=2)
+    other_fixed_assets_udf1 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_fixed_assets_udf2 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_fixed_assets_udf3 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Accumulated Depreciation
     accumulated_depreciation = NegativeDecimalField(max_digits=15, decimal_places=2)
-
+    # Net Plan and Equipemnt (excludes land); = Gross Plan and Equipment (subtotal) + Accumulated Depreciation (summed due to accumualted depreciation required to be entered as a negative amount)
+    net_fixed_assets = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Land; listed separately to more easily differentiate non-depreciable assets
     land = models.DecimalField(max_digits=15, decimal_places=2)
 
+    # Gross Intangible Assets
     goodwill = models.DecimalField(max_digits=15, decimal_places=2)
     trademarks_and_licenses = models.DecimalField(max_digits=15, decimal_places=2)
     financing_costs = models.DecimalField(max_digits=15, decimal_places=2)
-    other_intangible_assets = models.DecimalField(max_digits=15, decimal_places=2)
+    other_intangible_assets_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_intangible_assets_udf2 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    other_intangible_assets_udf3 = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Accumulated Amortization
     accumulated_amortization = NegativeDecimalField(max_digits=15, decimal_places=2)
-
+    # Net Intangible Assets
+    net_intangible_assets = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    # Other Long Term Assets
     due_from_related_parties_generic = models.DecimalField(max_digits=15, decimal_places=2)
     due_from_shareholders_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Long Term Assets (subtotal)
+    other_long_term_assets_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Long Term Assets (cascade)
     other_long_term_assets_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_assets_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_assets_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_assets_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_assets_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    # Total Long Term Assets
+    total_long_term_assets = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    # Total Assets; = Total Current Assets + Total Long Term Assets
+    total_assets = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-    # Liability fields
-    trade_accounts = models.DecimalField(max_digits=15, decimal_places=2)
-    other_accounts = models.DecimalField(max_digits=15, decimal_places=2)
+    # Liability Fields
+    
+    # Current Liabilities
+    # Accounts Payable (subtotal)
+    accounts_payable_subtotal = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    # Accounts Payable (cascade)
+    trade_accounts_payable = models.DecimalField(max_digits=15, decimal_places=2)
+    other_accounts_payable = models.DecimalField(max_digits=15, decimal_places=2)
+    # Current Portion of Long Term Debt (subtotal)
+    current_portion_of_long_term_debt_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Current Portion of Long Term Debt (cascade)
     current_portion_of_long_term_debt_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    current_portion_of_long_term_debt_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    current_portion_of_long_term_debt_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    current_portion_of_long_term_debt_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Short-Term Revolving Lines; Note: This is separated out to allow for easier exclusion of short-term notes payble from debt service coverage analysis, as occasionally accountants will sum current portion of long term debts (principal and interest payments) with revolving lines (interest only payments)
+    # Revolving Lines (subtotal)
+    revolving_lines_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Revolving Lines (cascade)
+    revolving_lines_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    credit_cards_payable = models.DecimalField(max_digits=15, decimal_places=2)
     revolving_lines_of_credit_generic = models.DecimalField(max_digits=15, decimal_places=2)
-
-    customer_advances = models.DecimalField(max_digits=15, decimal_places=2)
-    other_accruals = models.DecimalField(max_digits=15, decimal_places=2)
-
-    payroll_liabilities = models.DecimalField(max_digits=15, decimal_places=2)
+    other_revolving_line_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_revolving_line_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_revolving_line_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_revolving_line_udf4 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Accruals; seperated for clearer distinction in UCA Cash Flow Analysis
+    # Accruals (subtotal)
+    accruals_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Accruals (cascade)
+    other_accruals_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_accruals_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_accruals_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_accruals_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Other Current Liabilities
     taxes_payable = models.DecimalField(max_digits=15, decimal_places=2)
+    customer_advances = models.DecimalField(max_digits=15, decimal_places=2)
+    payroll_liabilities = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Current Liabilities (subtotal)
+    other_current_liabilities_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Current Liabilities (cascade)
+    other_current_liabilities_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_current_liabilities_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_current_liabilities_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_current_liabilities_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Total Current Liabilities; = Accounts Payable (subtotal) + Current Portion of Long Term Debt (subtotal) +
+    # Revolving Lines (subtotal) + Accruals (subtotal) + Taxes Payable + Customer Advances +
+    # Payroll Liabilities + Other Current Liabilities (subtotal)
+    total_current_liabilities = models.DecimalField(max_digits=15, decimal_places=2)
 
+    # Long Term Liabilities
+    # Long-Term Debt to be Refinanced; Note: This is seperated out for clearer distinction for SBA loan requests due to the SBA requiring debts being refinanced by an SBA loan be itemized on the balance sheet.
+    # Refinanced Debt (subtotal)
+    refinanced_long_term_debt_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Refinanced Debt (cascade)
+    refianced_long_term_debt_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf4 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf5 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf6 = models.DecimalField(max_digits=15, decimal_places=2)
+    refianced_long_term_debt_udf7 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Long Term Notes Payable (other) (subtotal)
     long_term_notes_payable_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    # Long Term Notes Payable (other) (cascade)
+    long_term_notes_payable_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    long_term_notes_payable_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    long_term_notes_payable_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    long_term_notes_payable_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    long_term_notes_payable_udf4 = models.DecimalField(max_digits=15, decimal_places=2)
+    # Total Notes Payable; = Refinanced Long-Term Debt Subtotal + Long-Term Notes Payable Subtotal
+    total_notes_payable = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Other Long Term Debt
+    # Other Long Term Debt (subtotal)
+    other_long_term_debt_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    #Other Long Term Debt (cascade)
     due_to_related_parties_generic = models.DecimalField(max_digits=15, decimal_places=2)
     due_to_shareholders_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Long Term Debt (subtotal)
     other_long_term_liabilities_generic = models.DecimalField(max_digits=15, decimal_places=2)
-
-    # Shareholders' Equity fields
+    # Other Long Term Debt (cascade)
+    other_long_term_liabilities_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_liabilities_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_liabilities_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_liabilities_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_long_term_liabilities_udf4 = models.DecimalField(max_digits=15, decimal_places=2)
+    
+    # Shareholders' Equity Fields
     paid_in_capital = models.DecimalField(max_digits=15, decimal_places=2)
     beginning_retained_earnings = models.DecimalField(max_digits=15, decimal_places=2)
-    current_periods_net_income_after_tax = models.DecimalField(max_digits=15, decimal_places=2)
-    current_periods_distributions = models.DecimalField(max_digits=15, decimal_places=2)
-
+    current_period_retained_earnings = models.DecimalField(max_digits=15, decimal_places=2)
+    current_period_distributions = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Equity (subtotal)
+    other_equity_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
+    # Other Equity (cascade)
+    other_equity_generic = models.DecimalField(max_digits=15, decimal_places=2)
+    other_equity_udf1 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_equity_udf2 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_equity_udf3 = models.DecimalField(max_digits=15, decimal_places=2)
+    other_equity_udf4 = models.DecimalField(max_digits=15, decimal_places=2)
+    # Total Shareholde's Equity
+    total_shareholders_equity = models.DecimalField(max_digits=15, decimal_places=2)
+    # Total Shareholder's Equity and Liabilities
+    
+    # Current Unbalanced Amount; Note: This is to be a dynamically updated field (requires javascript) that will continue to report any unbalanced amount to assist in reconciliation.
+    unbalanced_amount = models.DecimalField(max_digits=15, decimal_places=2)
+    # Note: At a later date, I'd like to add in some custom logic based on the offage amount.
+    # For example, if the offage is a significant percentage (say, +- 30%) of total assets,
+    # it may suggest a "slide error". Or, the offage is within a small percentage of an
+    # single account type, it may suggest to review that account.
+    
+    
+    
     # Sub-Total Fields
     @property
     def total_current_assets(self):
@@ -167,11 +318,3 @@ class BalanceSheet(models.Model):
     @property
     def total_shareholders_equity_and_liabilities(self):
         return self.total_liabilities + self.total_shareholders_equity
-
-# This separate model will help you store User Defined Fields specific to a given entity's uuid,
-# and you can then query the User Defined Fields for a specific BalanceSheet instance by
-# filtering on the balance_sheet ForeignKey.
-class UserDefinedField(models.Model):
-    field_name = models.CharField(max_length=100)
-    value = models.DecimalField(max_digits=15, decimal_places=2)
-    balance_sheet = models.ForeignKey(BalanceSheet, on_delete=models.CASCADE)
