@@ -48,15 +48,17 @@ class BalanceSheet(models.Model):
     
     # Accounts Receivable (net)
     accounts_receivable_net = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    # Accounts Receivable (cascade)
     accounts_receivable = models.DecimalField(max_digits=15, decimal_places=2)
     bad_debt_allowance = NegativeDecimalField(max_digits=15, decimal_places=2)
 
     # Inventory (subtotal)
     inventory_subtotal = models.DecimalField(max_digits=15, decimal_places=2, null=True, blank=True)
+    # Inventory (cascade)
+    inventory_generic = models.DecimalField(max_digits=15, decimal_places=2)
     raw_material = models.DecimalField(max_digits=15, decimal_places=2)
     work_in_progress = models.DecimalField(max_digits=15, decimal_places=2)
     finished_goods = models.DecimalField(max_digits=15, decimal_places=2)
-    unclassified_inventory = models.DecimalField(max_digits=15, decimal_places=2)
     
     # Other Current Assets
     prepaid_expenses_generic = models.DecimalField(max_digits=15, decimal_places=2)
@@ -295,7 +297,7 @@ class BalanceSheet(models.Model):
 
     @property
     def inventory_subtotal(self):
-        return self.raw_material + self.work_in_progress + self.finished_goods + self.unclassified_inventory
+        return self.inventory_generic + self.raw_material + self.work_in_progress + self.finished_goods
 
     @property
     def total_current_assets(self):
