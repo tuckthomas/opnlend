@@ -24,13 +24,15 @@ class NegativeDecimalField(models.DecimalField):
 
 # Balance Sheet model.
 class BalanceSheet(models.Model):
+    # Foreign Key from associated Income Statement model.
+    income_statement = models.ForeignKey('IncomeStatement', on_delete=models.SET_NULL, null=True, blank=True)
     # Global Statement ID for Financial Statement Set
     global_statement = models.ForeignKey(GlobalStatement, on_delete=models.CASCADE, related_name='income_statements')
+    period_ending_date = models.DateField(null=True, blank=True)
+    
     # Business Name
     business_name = models.ForeignKey(Business, on_delete=models.CASCADE)
-    
     uuid = models.UUIDField(primary_key=True, unique=True)
-    entity_name = models.CharField(max_length=150)
 
     # Asset fields
     
@@ -229,8 +231,10 @@ class BalanceSheet(models.Model):
     # Shareholders' Equity Fields
     paid_in_capital = models.DecimalField(max_digits=15, decimal_places=2)
     beginning_retained_earnings = models.DecimalField(max_digits=15, decimal_places=2)
+    # Current Period Retained Earnings; Note: If data has been entered into the associated Income Statement,
+    # this field will auto-populate with that statements calculated 'Current Period Retained Earnings',
+    # which is equal to Net Profit (Loss) After Taxes, less Distributions to Shareholders
     current_period_retained_earnings = models.DecimalField(max_digits=15, decimal_places=2)
-    current_period_distributions = models.DecimalField(max_digits=15, decimal_places=2)
     # Other Equity (subtotal)
     other_equity_subtotal = models.DecimalField(max_digits=15, decimal_places=2)
     # Other Equity (cascade)
@@ -251,6 +255,30 @@ class BalanceSheet(models.Model):
     # a "Helpful Hint" may suggest a "slide error". Or, if the offage is within a small percentage
     # of an single account type, it may suggest to review that account.
     
+    # Auto-populates the Current Period Retained Earnings if data has been entered into the associated Income Statement. Otherwise, defaults to $0.
+       
+    def save(self, *args, **kwargs):
+        # Auto-populate current_period_retained_earnings and period_ending_date from related IncomeStatement, if it exists
+        if self.income_statement:
+            self.current_period_retained_earnings = self.income_statement.current_period_retained_earnings
+            self.period_ending_date = self.income_statement.period_ending_date
+        else:
+            self.current_period_retained_earnings = 0
+            self.period_ending_date = None
+
+        # Auto-populate beginning_retained_earnings from the previous BalanceSheet, if it exists
+        if self.income_statement:
+            prev_balance_sheet = BalanceSheet.objects.filter(
+                income_statement__global_statement_id=self.global_statement_id,
+                income_statement__period_ending_date__lt=self.income_statement.period_ending_date
+            ).order_by('-income_statement__period_ending_date').first()
+
+            if prev_balance_sheet:
+                self.beginning_retained_earnings = prev_balance_sheet.current_period_retained_earnings
+            else:
+                self.beginning_retained_earnings = 0
+
+        super().save(*args, **kwargs)
     
     # Total and Sub-Total Fields definitions for those specific accounts above.
     # Subtotal and Total property fields
@@ -272,7 +300,7 @@ class BalanceSheet(models.Model):
         return self.cash_subtotal + self.accounts_receivable_net + self.inventory_subtotal + self.prepaid_expenses_generic + other_current_assets_subtotal
 
     @property
-    def other_gross_plant_and_equipment_subtotal
+    def other_gross_plant_and_equipment_subtotal(self):
         return self.other_gross_plant_and_equipment_generic + self.other_gross_plant_and_equipment_udf1 + self.other_gross_plant_and_equipment_udf2 + self.other_gross_plant_and_equipment_udf3
     
     @property
@@ -369,7 +397,7 @@ class BalanceSheet(models.Model):
 
     @property
     def total_shareholders_equity(self):
-        return self.paid_in_capital + self.beginning_retained_earnings + self.current_period_retained_earnings - self.current_period_distributions + self.other_equity_subtotal
+        return self.paid_in_capital + self.beginning_retained_earnings + self.current_period_retained_earnings + self.other_equity_subtotal
 
     @property
     def total_liabilities_and_shareholders_equity(self):
